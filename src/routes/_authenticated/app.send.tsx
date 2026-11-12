@@ -198,7 +198,6 @@ function SendFlow() {
           </div>
           {!both ? (
             <div className="mt-3">
-              <p className="text-center text-sm font-bold text-muted-foreground">Tap the map to set your {editing === "from" ? "pickup" : "drop-off"} point, or use 📍 for your location</p>
             </div>
           ) : (
             <div className="mt-3">
