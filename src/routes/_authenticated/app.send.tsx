@@ -23,6 +23,17 @@ export const Route = createFileRoute("/_authenticated/app/send")({
 const LiveMap = lazy(() => import("@/components/zippy/live-map"));
 
 const STEPS = ["Pickup", "Drop-off", "Package", "Vehicle", "Timing", "Review"];
+const PRESETS: Record<string, { emoji: string; weight_kg: number; length_cm: number; width_cm: number; height_cm: number; fragile: boolean }> = {
+  Documents: { emoji: "📄", weight_kg: 0.5, length_cm: 35, width_cm: 25, height_cm: 3, fragile: false },
+  Food: { emoji: "🍱", weight_kg: 2, length_cm: 35, width_cm: 30, height_cm: 20, fragile: false },
+  Groceries: { emoji: "🛒", weight_kg: 8, length_cm: 45, width_cm: 35, height_cm: 30, fragile: false },
+  Clothing: { emoji: "👕", weight_kg: 3, length_cm: 45, width_cm: 35, height_cm: 15, fragile: false },
+  Electronics: { emoji: "📱", weight_kg: 5, length_cm: 50, width_cm: 40, height_cm: 30, fragile: true },
+  Gifts: { emoji: "🎁", weight_kg: 2, length_cm: 35, width_cm: 30, height_cm: 25, fragile: false },
+  Furniture: { emoji: "🛋️", weight_kg: 60, length_cm: 190, width_cm: 90, height_cm: 90, fragile: false },
+  "Business Goods": { emoji: "📦", weight_kg: 25, length_cm: 70, width_cm: 60, height_cm: 50, fragile: false },
+  Other: { emoji: "✨", weight_kg: 3, length_cm: 40, width_cm: 30, height_cm: 25, fragile: false },
+};
 const CATEGORIES = ["Documents", "Food", "Groceries", "Clothing", "Electronics", "Gifts", "Furniture", "Business Goods", "Other"] as const;
 
 interface Stop { area: string; street: string; lat: number | null; lng: number | null; contact_name: string; contact_phone: string; instructions: string }
@@ -125,6 +136,11 @@ function SendFlow() {
   const [dropoff, setDropoff] = useState<Stop>(emptyStop);
   const [pkg, setPkg] = useState({ category: "Documents" as (typeof CATEGORIES)[number], description: "", weight_kg: 1, length_cm: 30, width_cm: 20, height_cm: 10, quantity: 1, fragile: false, declared_value: "", instructions: "" });
   const [vehicle, setVehicle] = useState<VehicleCode | null>(null);
+  const [typePicked, setTypePicked] = useState(false);
+  const pickType = (c: (typeof CATEGORIES)[number]) => {
+    const { emoji: _e, ...d } = PRESETS[c]!;
+    setPkg((p) => ({ ...p, category: c, ...d })); setVehicle(null); setTypePicked(true);
+  };
   const [when, setWhen] = useState<"now" | "later">("now");
   const [at, setAt] = useState("");
   const [busy, setBusy] = useState(false);
@@ -203,8 +219,8 @@ function SendFlow() {
       setTyping(null); setSugs([]);
     };
     const pinAt = async (which: "from" | "to", lat: number, lng: number) => {
-      setPlace(which, which === "from" ? "Pinned pickup" : "Pinned drop-off", lat, lng);
-      setPinMode(false);
+      setPlace(which, "Finding address…", lat, lng);
+      if (which === "from") setEditing("from");
       const n = await reverseName(lat, lng);
       if (n) {
         if (which === "from") setPickup((p) => (p.lat === lat ? { ...p, area: n } : p));
@@ -221,17 +237,25 @@ function SendFlow() {
     return (
       <div className="fixed inset-0 z-[1000] mx-auto max-w-md bg-secondary">
         <ClientOnly fallback={null}><Suspense fallback={null}>
-          <LiveMap from={fromP} to={toP} onPick={(pt) => { if (pinMode) pinAt(editing, pt.lat, pt.lng); }} />
+          <LiveMap from={fromP} to={toP} focus={pinMode ? (editing === "from" ? fromP : toP) : null} onPick={(pt) => { if (pinMode) pinAt(editing, pt.lat, pt.lng); }} />
         </Suspense></ClientOnly>
         <Link to="/app" aria-label="Back" className="absolute left-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><ArrowLeft className="h-5 w-5" /></Link>
         <button onClick={locate} aria-label="Use my location" className="absolute right-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><Crosshair className="h-5 w-5" /></button>
         {pinMode && (
-          <div className="absolute inset-x-4 top-20 z-[500] rounded-2xl bg-ink px-4 py-3 text-center text-sm font-bold text-ink-foreground shadow-float">
-            Tap the map to set your {editing === "from" ? "pickup" : "drop-off"} point
-            <button onClick={() => setPinMode(false)} className="ml-2 underline">Cancel</button>
+          <div className="absolute inset-x-0 bottom-0 z-[600] rounded-t-[2rem] bg-card p-5 pb-6 shadow-float">
+            <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground">{editing === "from" ? "Pickup address" : "Drop-off address"}</p>
+            <div className="mt-2 flex items-center gap-3">
+              <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl text-primary-foreground", editing === "from" ? "bg-primary" : "bg-sky")}>{editing === "from" ? <Package className="h-5 w-5" /> : <Flag className="h-5 w-5" />}</span>
+              <span className="min-w-0 flex-1 font-display text-lg font-extrabold leading-tight">{(editing === "from" ? fromP : toP) ? query[editing] : <span className="text-muted-foreground">Tap the map to choose</span>}</span>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button variant="outline" className="h-12 flex-1" onClick={() => setPinMode(false)}>Back</Button>
+              <Button variant="zippy" className="h-12 flex-[2]" disabled={!(editing === "from" ? fromP : toP)} onClick={() => { setPinMode(false); if (editing === "from" && !toP) setEditing("to"); }}>Confirm {editing === "from" ? "pickup" : "drop-off"}</Button>
+            </div>
           </div>
         )}
-        <div className={cn("absolute inset-x-0 bottom-0 z-[500] max-h-[75%] overflow-y-auto rounded-t-[2rem] bg-card p-4 pb-6 shadow-float transition", pinMode && "pointer-events-none translate-y-[85%] opacity-60")}>
+        <div className={cn("absolute inset-x-0 bottom-0 z-[500] max-h-[75%] overflow-y-auto rounded-t-[2rem] bg-card p-4 pb-6 shadow-float transition", pinMode && "pointer-events-none translate-y-full opacity-0")}>
           <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-muted" />
           <div className="rounded-3xl bg-muted p-1.5">
             {(["from", "to"] as const).map((w) => (
@@ -272,8 +296,21 @@ function SendFlow() {
           {typing ? null : !both ? (
             <div className="mt-3">
             </div>
+          ) : !typePicked ? (
+            <div className="mt-4">
+              <p className="px-1 text-[11px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground">What are you sending?</p>
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {CATEGORIES.map((c) => (
+                  <button key={c} type="button" onClick={() => pickType(c)} className="flex flex-col items-center gap-1 rounded-2xl border-2 border-border bg-card px-2 py-3 transition active:scale-95">
+                    <span className="text-2xl">{PRESETS[c]!.emoji}</span>
+                    <span className="text-center text-xs font-bold leading-tight">{c}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           ) : (
             <div className="mt-3">
+              <button type="button" onClick={() => setTypePicked(false)} className="mb-2 inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-xs font-bold text-secondary-foreground">{PRESETS[pkg.category]!.emoji} {pkg.category} · ~{pkg.weight_kg} kg · Change</button>
               <div className="max-h-[11.5rem] space-y-2 overflow-y-auto">
                 {options.filter((o) => !o.reason).map(({ v, quote }) => {
                   const sel = (vehicle ?? recommended) === v.code;

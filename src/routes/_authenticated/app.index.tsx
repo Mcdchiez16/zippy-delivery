@@ -17,7 +17,6 @@ const ROWS = [
   { to: "/app/track" as const, label: "Track a delivery", icon: MapPin },
   { to: "/app/orders" as const, label: "My orders", icon: ListChecks },
   { to: "/app/wallet" as const, label: "Wallet & points", icon: Wallet },
-  { to: "/app/business" as const, label: "Business profile", icon: Store },
 ];
 
 function CustomerHome() {
@@ -39,12 +38,18 @@ function CustomerHome() {
         </Link>
       </header>
 
-      <section className="relative mt-9 overflow-hidden rounded-[2rem] bg-ink p-6 text-ink-foreground shadow-float">
-        <img src={box} alt="" aria-hidden className="pointer-events-none absolute -right-3 -top-3 h-24 w-24 object-contain opacity-90" />
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] opacity-50">New delivery</p>
-        <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold leading-[1.08]">Send a package.</h2>
-        <p className="mt-3 max-w-[24ch] text-sm font-semibold opacity-70">Pickup, drop-off, done. Anything, anywhere in town.</p>
-        <Button asChild variant="sun" className="mt-7 h-12 w-full px-6">
+      <section className="mt-9 overflow-hidden rounded-[2rem] bg-ink p-6 text-ink-foreground shadow-float">
+        <div className="flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] opacity-50">New delivery</p>
+            <h2 className="mt-2 font-display text-3xl font-extrabold leading-[1.05]">Send a package.</h2>
+            <p className="mt-2 text-sm font-semibold opacity-70">Pickup, drop-off, done.</p>
+          </div>
+          <div className="grid h-24 w-24 shrink-0 place-items-center rounded-3xl bg-ink-foreground/10">
+            <img src={box} alt="" aria-hidden className="h-20 w-20 object-contain" />
+          </div>
+        </div>
+        <Button asChild variant="sun" className="mt-6 h-12 w-full px-6">
           <Link to="/app/send">Send a Package</Link>
         </Button>
       </section>
@@ -79,6 +84,15 @@ function CustomerHome() {
           </Link>
         ))}
       </nav>
+
+      <Link to="/app/business" className="mt-4 flex items-center gap-4 rounded-3xl border-2 border-dashed border-primary/40 bg-secondary p-4 transition active:scale-[0.98]">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground"><Store className="h-6 w-6" /></span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display font-extrabold">Own a shop or business?</span>
+          <span className="block text-xs font-semibold text-muted-foreground">Apply for Zippy Business — bulk sends, invoices & more.</span>
+        </span>
+        <span className="rounded-full bg-sun px-3 py-1.5 text-xs font-extrabold text-sun-foreground">Apply</span>
+      </Link>
 
       <p className="mt-7 text-center text-xs font-bold text-muted-foreground">{points} Zippy Points</p>
     </div>
