@@ -1,7 +1,7 @@
-import bicycle from "@/assets/vehicle-bicycle.png";
-import motorbike from "@/assets/vehicle-motorbike.png";
-import car from "@/assets/vehicle-car.png";
-import cargo from "@/assets/vehicle-cargo.png";
+import bicycle from "@/assets/pro-bicycle.png";
+import motorbike from "@/assets/pro-motorbike.png";
+import car from "@/assets/pro-car.png";
+import cargo from "@/assets/pro-cargo.png";
 import type { VehicleCode } from "@/lib/pricing";
 
 export const VEHICLE_ART: Record<VehicleCode, string> = { bicycle, motorbike, car, cargo };

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock, Map as MapIcon, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock, Package, Map as MapIcon, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, Field, StepProgress, inputCls, CourierLoader } from "@/components/zippy/ui";
@@ -236,7 +236,7 @@ function SendFlow() {
           <div className="rounded-3xl bg-muted p-1.5">
             {(["from", "to"] as const).map((w) => (
               <div key={w} className={cn("flex w-full items-center gap-3 rounded-2xl px-3 py-2 transition", (typing ?? editing) === w && "bg-card shadow-card")}>
-                <span className={cn("h-3 w-3 shrink-0 rounded-full", w === "from" ? "bg-primary" : "bg-sky")} />
+                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-xl text-primary-foreground", w === "from" ? "bg-primary" : "bg-sky")}>{w === "from" ? <Package className="h-4 w-4" /> : <Flag className="h-4 w-4" />}</span>
                 <input
                   value={query[w]}
                   onFocus={(e) => { setEditing(w); setTyping(w); e.currentTarget.select(); }}
@@ -274,15 +274,21 @@ function SendFlow() {
             </div>
           ) : (
             <div className="mt-3">
-              <div className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2">
-                {options.map(({ v, reason, quote }) => {
-                  const sel = (vehicle ?? recommended) === v.code && !reason;
+              <div className="max-h-[11.5rem] space-y-2 overflow-y-auto">
+                {options.filter((o) => !o.reason).map(({ v, quote }) => {
+                  const sel = (vehicle ?? recommended) === v.code;
+                  const eta = quote ? new Date(Date.now() + quote.duration_min * 60_000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "";
                   return (
-                    <button key={v.code} disabled={!!reason} onClick={() => setVehicle(v.code)} className={cn("w-28 shrink-0 snap-start rounded-3xl border-2 p-2 text-left transition", sel ? "border-primary bg-secondary animate-bounce-in" : "border-transparent bg-muted", reason && "opacity-50")}>
-                      <img src={VEHICLE_ART[v.code]} alt="" className="mx-auto h-14 w-14 object-contain" />
-                      <div className="font-display text-sm font-extrabold">{v.name}</div>
-                      <div className="text-sm font-extrabold">{quote && !reason ? money(quote.total_minor, quote.currency) : "—"}</div>
-                      <div className="text-[11px] font-semibold text-muted-foreground">{reason ? "Too far / big" : `~${quote?.duration_min} min`}</div>
+                    <button key={v.code} onClick={() => setVehicle(v.code)} className={cn("relative flex w-full items-center gap-3 rounded-2xl border-2 px-3 py-2 text-left transition active:scale-[0.98]", sel ? "border-primary bg-secondary" : "border-border bg-card")}>
+                      <img src={VEHICLE_ART[v.code]} alt={v.name} loading="lazy" className="h-12 w-16 object-contain" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-display font-extrabold">{v.name}</span>
+                          {recommended === v.code && <span className="rounded-full bg-sun px-2 py-0.5 text-[10px] font-extrabold text-sun-foreground">Best fit</span>}
+                        </div>
+                        <div className="text-xs font-semibold text-muted-foreground">{quote?.duration_min} min · arrives ~{eta}</div>
+                      </div>
+                      <div className="font-display font-extrabold">{quote ? money(quote.total_minor, quote.currency) : "—"}</div>
                     </button>
                   );
                 })}

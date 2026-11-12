@@ -186,3 +186,6 @@
 .bb-eyes { transform-origin: 60px 70px; transform-box: view-box; animation: bb-blink 3.5s infinite; }
 
 /* The home-page box sits still on purpose — no walk/waddle animation here. */
+
+/* Soften free OSM tiles to match Zippy look */
+.zippy-tiles { filter: saturate(0.55) brightness(1.04) contrast(0.95) hue-rotate(-8deg); }
