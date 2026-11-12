@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock } from "lucide-react";
+import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock, Map as MapIcon, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, Field, StepProgress, inputCls, CourierLoader } from "@/components/zippy/ui";
@@ -83,12 +83,43 @@ function stopError(s: Stop) {
   return null;
 }
 
+type Suggestion = { name: string; detail: string; lat: number; lng: number };
+// Free OpenStreetMap place search (Nominatim), biased to Lusaka / Zambia.
+async function searchPlaces(q: string, signal: AbortSignal): Promise<Suggestion[]> {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=zm&viewbox=27.9,-15.2,28.7,-15.7&q=${encodeURIComponent(q)}`;
+  const r = await fetch(url, { signal, headers: { "Accept-Language": "en" } });
+  const d = (await r.json()) as { display_name: string; lat: string; lon: string }[];
+  return d.map((x) => { const [n, ...rest] = x.display_name.split(", "); return { name: n!, detail: rest.slice(0, 3).join(", "), lat: +x.lat, lng: +x.lon }; });
+}
+async function reverseName(lat: number, lng: number): Promise<string | null> {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&zoom=17&lat=${lat}&lon=${lng}`, { headers: { "Accept-Language": "en" } });
+    const d = await r.json();
+    return d?.display_name ? (d.display_name as string).split(", ").slice(0, 2).join(", ") : null;
+  } catch { return null; }
+}
+
 function SendFlow() {
   const navigate = useNavigate();
   const { data: acc } = useAccount();
   const { data: cfg, isLoading } = useQuery(configQuery);
   const [stage, setStage] = useState<"map" | "form">("map");
   const [editing, setEditing] = useState<"from" | "to">("from");
+  const [query, setQuery] = useState<{ from: string; to: string }>({ from: "", to: "" });
+  const [typing, setTyping] = useState<"from" | "to" | null>(null);
+  const [pinMode, setPinMode] = useState(false);
+  const [sugs, setSugs] = useState<Suggestion[]>([]);
+  const [searching, setSearching] = useState(false);
+  const activeQ = typing ? query[typing] : "";
+  useEffect(() => {
+    if (!typing || activeQ.trim().length < 2) { setSugs([]); return; }
+    const ac = new AbortController();
+    setSearching(true);
+    const t = setTimeout(() => {
+      searchPlaces(activeQ.trim(), ac.signal).then(setSugs).catch(() => {}).finally(() => setSearching(false));
+    }, 400);
+    return () => { clearTimeout(t); ac.abort(); };
+  }, [activeQ, typing]);
   const [step, setStep] = useState(0);
   const [pickup, setPickup] = useState<Stop>(emptyStop);
   const [dropoff, setDropoff] = useState<Stop>(emptyStop);
@@ -166,11 +197,23 @@ function SendFlow() {
     const fromP = pickup.lat != null ? { lat: pickup.lat, lng: pickup.lng! } : null;
     const toP = dropoff.lat != null ? { lat: dropoff.lat, lng: dropoff.lng! } : null;
     const setPlace = (which: "from" | "to", name: string, lat: number, lng: number) => {
-      if (which === "from") { setPickup({ ...pickup, area: name, lat, lng }); setEditing("to"); }
-      else setDropoff({ ...dropoff, area: name, lat, lng });
+      if (which === "from") { setPickup((p) => ({ ...p, area: name, lat, lng })); setEditing("to"); }
+      else setDropoff((p) => ({ ...p, area: name, lat, lng }));
+      setQuery((q) => ({ ...q, [which]: name }));
+      setTyping(null); setSugs([]);
+    };
+    const pinAt = async (which: "from" | "to", lat: number, lng: number) => {
+      setPlace(which, which === "from" ? "Pinned pickup" : "Pinned drop-off", lat, lng);
+      setPinMode(false);
+      const n = await reverseName(lat, lng);
+      if (n) {
+        if (which === "from") setPickup((p) => (p.lat === lat ? { ...p, area: n } : p));
+        else setDropoff((p) => (p.lat === lat ? { ...p, area: n } : p));
+        setQuery((q) => ({ ...q, [which]: n }));
+      }
     };
     const locate = () => navigator.geolocation?.getCurrentPosition(
-      (p) => setPlace("from", "Current location", p.coords.latitude, p.coords.longitude),
+      (p) => pinAt("from", p.coords.latitude, p.coords.longitude),
       () => toast.error("We couldn't get your location. Pick a place instead."),
       { timeout: 8000 },
     );
@@ -178,25 +221,55 @@ function SendFlow() {
     return (
       <div className="fixed inset-0 z-[1000] mx-auto max-w-md bg-secondary">
         <ClientOnly fallback={null}><Suspense fallback={null}>
-          <LiveMap from={fromP} to={toP} onPick={(pt) => setPlace(editing, editing === "from" ? "Pinned pickup" : "Pinned drop-off", pt.lat, pt.lng)} />
+          <LiveMap from={fromP} to={toP} onPick={(pt) => { if (pinMode) pinAt(editing, pt.lat, pt.lng); }} />
         </Suspense></ClientOnly>
         <Link to="/app" aria-label="Back" className="absolute left-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><ArrowLeft className="h-5 w-5" /></Link>
         <button onClick={locate} aria-label="Use my location" className="absolute right-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><Crosshair className="h-5 w-5" /></button>
-        <div className="absolute inset-x-0 bottom-0 z-[500] max-h-[70%] overflow-y-auto rounded-t-[2rem] bg-card p-4 pb-6 shadow-float">
+        {pinMode && (
+          <div className="absolute inset-x-4 top-20 z-[500] rounded-2xl bg-ink px-4 py-3 text-center text-sm font-bold text-ink-foreground shadow-float">
+            Tap the map to set your {editing === "from" ? "pickup" : "drop-off"} point
+            <button onClick={() => setPinMode(false)} className="ml-2 underline">Cancel</button>
+          </div>
+        )}
+        <div className={cn("absolute inset-x-0 bottom-0 z-[500] max-h-[75%] overflow-y-auto rounded-t-[2rem] bg-card p-4 pb-6 shadow-float transition", pinMode && "pointer-events-none translate-y-[85%] opacity-60")}>
           <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-muted" />
           <div className="rounded-3xl bg-muted p-1.5">
-            {(["from", "to"] as const).map((w) => {
-              const v = w === "from" ? pickup.area : dropoff.area;
-              return (
-                <button key={w} onClick={() => setEditing(w)} className={cn("flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition", editing === w && "bg-card shadow-card")}>
-                  <span className={cn("h-3 w-3 shrink-0 rounded-full", w === "from" ? "bg-primary" : "bg-sky")} />
-                  <span className="text-xs font-bold uppercase text-muted-foreground w-10">{w}</span>
-                  <span className={cn("flex-1 truncate font-bold", !v && "text-muted-foreground")}>{v || (w === "from" ? "Pickup point" : "Where to?")}</span>
+            {(["from", "to"] as const).map((w) => (
+              <div key={w} className={cn("flex w-full items-center gap-3 rounded-2xl px-3 py-2 transition", (typing ?? editing) === w && "bg-card shadow-card")}>
+                <span className={cn("h-3 w-3 shrink-0 rounded-full", w === "from" ? "bg-primary" : "bg-sky")} />
+                <input
+                  value={query[w]}
+                  onFocus={(e) => { setEditing(w); setTyping(w); e.currentTarget.select(); }}
+                  onChange={(e) => setQuery({ ...query, [w]: e.target.value })}
+                  placeholder={w === "from" ? "Pickup point" : "Where to?"}
+                  className="h-9 min-w-0 flex-1 bg-transparent font-bold outline-none placeholder:text-muted-foreground"
+                />
+                <button type="button" aria-label={`Pick ${w === "from" ? "pickup" : "drop-off"} on map`} onClick={() => { setEditing(w); setTyping(null); setSugs([]); setPinMode(true); }} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary text-secondary-foreground">
+                  <MapIcon className="h-4 w-4" />
                 </button>
-              );
-            })}
+              </div>
+            ))}
           </div>
-          {!both ? (
+          {typing && (
+            <div className="mt-2">
+              {typing === "from" && (
+                <button onClick={locate} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left hover:bg-muted">
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-secondary"><Crosshair className="h-4 w-4" /></span>
+                  <span className="font-bold">Use my current location</span>
+                </button>
+              )}
+              {searching && <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Searching…</div>}
+              {!searching && activeQ.trim().length >= 2 && sugs.length === 0 && <div className="px-3 py-3 text-sm text-muted-foreground">No places found. Try another name or pick on the map.</div>}
+              {sugs.map((sg) => (
+                <button key={`${sg.lat},${sg.lng}`} onClick={() => setPlace(typing, sg.name, sg.lat, sg.lng)} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left hover:bg-muted">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted"><MapPin className="h-4 w-4" /></span>
+                  <span className="min-w-0"><span className="block truncate font-bold">{sg.name}</span><span className="block truncate text-xs text-muted-foreground">{sg.detail}</span></span>
+                </button>
+              ))}
+              {activeQ.trim().length < 2 && !searching && <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"><Search className="h-3.5 w-3.5" />Type a place, street or landmark</div>}
+            </div>
+          )}
+          {typing ? null : !both ? (
             <div className="mt-3">
             </div>
           ) : (
