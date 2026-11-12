@@ -17,7 +17,8 @@ export default function LiveMap({ from, to, onPick }: { from: P; to: P; onPick?:
   useEffect(() => {
     if (!el.current) return;
     const m = L.map(el.current, { zoomControl: false, attributionControl: true }).setView([-15.4167, 28.2833], 13);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { attribution: "© OpenStreetMap © CARTO", maxZoom: 19 }).addTo(m);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap contributors", maxZoom: 19 }).addTo(m);
+    setTimeout(() => m.invalidateSize(), 200);
     layer.current = L.layerGroup().addTo(m);
     m.on("click", (e) => pickRef.current?.({ lat: e.latlng.lat, lng: e.latlng.lng }));
     map.current = m;

@@ -176,7 +176,7 @@ function SendFlow() {
     );
     const both = fromP && toP;
     return (
-      <div className="fixed inset-0 z-40 mx-auto max-w-md bg-secondary">
+      <div className="fixed inset-0 z-[1000] mx-auto max-w-md bg-secondary">
         <ClientOnly fallback={null}><Suspense fallback={null}>
           <LiveMap from={fromP} to={toP} onPick={(pt) => setPlace(editing, editing === "from" ? "Pinned pickup" : "Pinned drop-off", pt.lat, pt.lng)} />
         </Suspense></ClientOnly>
@@ -198,10 +198,7 @@ function SendFlow() {
           </div>
           {!both ? (
             <div className="mt-3">
-              <p className="mb-2 text-xs font-bold text-muted-foreground">Tap the map or choose a place</p>
-              <div className="flex flex-wrap gap-2">
-                {PLACES.map((p) => <button key={p.name} onClick={() => setPlace(editing, p.name, p.lat, p.lng)} className="rounded-full border-2 border-border px-3 py-1.5 text-sm font-bold transition active:scale-95">{p.name}</button>)}
-              </div>
+              <p className="text-center text-sm font-bold text-muted-foreground">Tap the map to set your {editing === "from" ? "pickup" : "drop-off"} point, or use 📍 for your location</p>
             </div>
           ) : (
             <div className="mt-3">
