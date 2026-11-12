@@ -19,7 +19,7 @@ export default function LiveMap({ from, to, focus, onPick }: { from: P; to: P; f
   useEffect(() => {
     if (!el.current) return;
     const m = L.map(el.current, { zoomControl: false, attributionControl: true }).setView([-15.4167, 28.2833], 13);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19, className: "zippy-tiles" }).addTo(m);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", { attribution: "© OpenStreetMap © CARTO", subdomains: "abcd", maxZoom: 20, className: "zippy-tiles" }).addTo(m);
     setTimeout(() => m.invalidateSize(), 200);
     layer.current = L.layerGroup().addTo(m);
     m.on("click", (e) => {

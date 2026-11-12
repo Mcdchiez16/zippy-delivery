@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock, Package, Map as MapIcon, Search, Loader2 } from "lucide-react";
+import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock, Package, Map as MapIcon, Search, Loader2, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, Field, StepProgress, inputCls, CourierLoader } from "@/components/zippy/ui";
@@ -95,12 +95,60 @@ function stopError(s: Stop) {
 }
 
 type Suggestion = { name: string; detail: string; lat: number; lng: number };
-// Free OpenStreetMap place search (Nominatim), biased to Lusaka / Zambia.
+const norm = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// Matches if every typed word is the start of some word in the text ("man hi" -> "Manda Hill").
+const prefixMatch = (text: string, q: string) => {
+  const words = norm(text).split(/[^a-z0-9]+/);
+  return norm(q).split(/\s+/).filter(Boolean).every((w) => words.some((x) => x.startsWith(w)) || norm(text).includes(w));
+};
+function dedupe(list: Suggestion[]) {
+  const seen = new Set<string>();
+  return list.filter((x) => { const k = norm(x.name); if (seen.has(k)) return false; seen.add(k); return true; });
+}
+// Free search-as-you-type (Photon/OSM) biased to Lusaka, plus local landmarks for instant results.
 async function searchPlaces(q: string, signal: AbortSignal): Promise<Suggestion[]> {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&countrycodes=zm&viewbox=27.9,-15.2,28.7,-15.7&q=${encodeURIComponent(q)}`;
-  const r = await fetch(url, { signal, headers: { "Accept-Language": "en" } });
-  const d = (await r.json()) as { display_name: string; lat: string; lon: string }[];
-  return d.map((x) => { const [n, ...rest] = x.display_name.split(", "); return { name: n!, detail: rest.slice(0, 3).join(", "), lat: +x.lat, lng: +x.lon }; });
+  const local: Suggestion[] = PLACES.filter((p) => prefixMatch(p.name, q)).map((p) => ({ name: p.name, detail: "Lusaka", lat: p.lat, lng: p.lng }));
+  let remote: Suggestion[] = [];
+  try {
+    const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=-15.4167&lon=28.2833&limit=10&lang=en&bbox=27.6,-15.9,28.9,-15.0`, { signal });
+    const d = (await r.json()) as { features: { geometry: { coordinates: [number, number] }; properties: Record<string, string> }[] };
+    remote = d.features.filter((f) => !f.properties.countrycode || f.properties.countrycode === "ZM").map((f) => {
+      const pr = f.properties;
+      const name = pr.name || [pr.housenumber, pr.street].filter(Boolean).join(" ") || pr.city || "Unnamed place";
+      return { name, detail: [pr.street !== name ? pr.street : null, pr.district || pr.locality, pr.city].filter(Boolean).join(", "), lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0] };
+    });
+  } catch (e) { if ((e as Error).name === "AbortError") throw e; }
+  return dedupe([...local, ...remote]).slice(0, 8);
+}
+const RECENT_KEY = "zippy.recentPlaces";
+function readLocalRecent(): Suggestion[] { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; } }
+function saveRecent(s: Suggestion) {
+  if (s.name === "Finding address…") return;
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(dedupe([s, ...readLocalRecent()]).slice(0, 8))); } catch { /* ignore */ }
+}
+// Places from the user's past deliveries + places they recently chose on this device.
+const recentPlacesQuery = {
+  queryKey: ["recent-places"],
+  queryFn: async (): Promise<Suggestion[]> => {
+    const { data: u } = await supabase.auth.getUser();
+    let fromOrders: Suggestion[] = [];
+    if (u.user) {
+      const { data } = await supabase.from("delivery_stops").select("address, lat, lng, delivery_orders!inner(customer_id, created_at)").eq("delivery_orders.customer_id", u.user.id).limit(40);
+      fromOrders = (data ?? []).map((x) => { const [n, ...rest] = x.address.split(", "); return { name: n!, detail: rest.join(", ") || "Past delivery", lat: x.lat, lng: x.lng }; });
+    }
+    return dedupe([...readLocalRecent(), ...fromOrders]).slice(0, 6);
+  },
+  staleTime: 60_000,
+};
+
+// Creative "locate me" arrow: a bold navigation arrow with a soft green glow.
+function LocateArrow({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden>
+      <path d="M20.5 3.5 3.8 10.4c-.8.3-.7 1.5.1 1.7l6.6 1.6 1.6 6.6c.2.8 1.4.9 1.7.1L20.5 3.5Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M20.5 3.5 10.5 13.7" stroke="white" strokeWidth="1.4" strokeLinecap="round" opacity=".55" />
+    </svg>
+  );
 }
 async function reverseName(lat: number, lng: number): Promise<string | null> {
   try {
@@ -121,14 +169,15 @@ function SendFlow() {
   const [pinMode, setPinMode] = useState(false);
   const [sugs, setSugs] = useState<Suggestion[]>([]);
   const [searching, setSearching] = useState(false);
+  const { data: recents = [] } = useQuery(recentPlacesQuery);
   const activeQ = typing ? query[typing] : "";
   useEffect(() => {
-    if (!typing || activeQ.trim().length < 2) { setSugs([]); return; }
+    if (!typing || activeQ.trim().length < 1) { setSugs([]); setSearching(false); return; }
     const ac = new AbortController();
     setSearching(true);
     const t = setTimeout(() => {
       searchPlaces(activeQ.trim(), ac.signal).then(setSugs).catch(() => {}).finally(() => setSearching(false));
-    }, 400);
+    }, 220);
     return () => { clearTimeout(t); ac.abort(); };
   }, [activeQ, typing]);
   const [step, setStep] = useState(0);
@@ -217,6 +266,7 @@ function SendFlow() {
       else setDropoff((p) => ({ ...p, area: name, lat, lng }));
       setQuery((q) => ({ ...q, [which]: name }));
       setTyping(null); setSugs([]);
+      saveRecent({ name, detail: "Recent", lat, lng });
     };
     const pinAt = async (which: "from" | "to", lat: number, lng: number) => {
       setPlace(which, "Finding address…", lat, lng);
@@ -226,6 +276,7 @@ function SendFlow() {
         if (which === "from") setPickup((p) => (p.lat === lat ? { ...p, area: n } : p));
         else setDropoff((p) => (p.lat === lat ? { ...p, area: n } : p));
         setQuery((q) => ({ ...q, [which]: n }));
+        saveRecent({ name: n, detail: "Pinned on map", lat, lng });
       }
     };
     const locate = () => navigator.geolocation?.getCurrentPosition(
@@ -240,7 +291,7 @@ function SendFlow() {
           <LiveMap from={fromP} to={toP} focus={pinMode ? (editing === "from" ? fromP : toP) : null} onPick={(pt) => { if (pinMode) pinAt(editing, pt.lat, pt.lng); }} />
         </Suspense></ClientOnly>
         <Link to="/app" aria-label="Back" className="absolute left-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><ArrowLeft className="h-5 w-5" /></Link>
-        <button onClick={locate} aria-label="Use my location" className="absolute right-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><Crosshair className="h-5 w-5" /></button>
+        <button onClick={locate} aria-label="Use my location" className="group absolute right-4 top-4 z-[500] grid h-12 w-12 place-items-center rounded-2xl bg-card shadow-float transition active:scale-90"><span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/15 text-primary-deep ring-4 ring-primary/10"><LocateArrow className="h-5 w-5" /></span></button>
         {pinMode && (
           <div className="absolute inset-x-0 bottom-0 z-[600] rounded-t-[2rem] bg-card p-5 pb-6 shadow-float">
             <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
@@ -278,19 +329,30 @@ function SendFlow() {
             <div className="mt-2">
               {typing === "from" && (
                 <button onClick={locate} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left hover:bg-muted">
-                  <span className="grid h-9 w-9 place-items-center rounded-full bg-secondary"><Crosshair className="h-4 w-4" /></span>
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/15 text-primary-deep"><LocateArrow className="h-4 w-4" /></span>
                   <span className="font-bold">Use my current location</span>
                 </button>
               )}
               {searching && <div className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" />Searching…</div>}
-              {!searching && activeQ.trim().length >= 2 && sugs.length === 0 && <div className="px-3 py-3 text-sm text-muted-foreground">No places found. Try another name or pick on the map.</div>}
+              {!searching && activeQ.trim().length >= 1 && sugs.length === 0 && <div className="px-3 py-3 text-sm text-muted-foreground">No places found. Try another name or pick on the map.</div>}
               {sugs.map((sg) => (
                 <button key={`${sg.lat},${sg.lng}`} onClick={() => setPlace(typing, sg.name, sg.lat, sg.lng)} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left hover:bg-muted">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted"><MapPin className="h-4 w-4" /></span>
                   <span className="min-w-0"><span className="block truncate font-bold">{sg.name}</span><span className="block truncate text-xs text-muted-foreground">{sg.detail}</span></span>
                 </button>
               ))}
-              {activeQ.trim().length < 2 && !searching && <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"><Search className="h-3.5 w-3.5" />Type a place, street or landmark</div>}
+              {activeQ.trim().length < 1 && recents.length > 0 && (
+                <>
+                  <p className="px-3 pb-1 pt-2 text-[11px] font-extrabold uppercase tracking-[0.2em] text-muted-foreground">Recent places</p>
+                  {recents.map((sg) => (
+                    <button key={`r${sg.lat},${sg.lng}`} onClick={() => setPlace(typing, sg.name, sg.lat, sg.lng)} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left hover:bg-muted">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-sun/25 text-sun-foreground"><History className="h-4 w-4" /></span>
+                      <span className="min-w-0"><span className="block truncate font-bold">{sg.name}</span><span className="block truncate text-xs text-muted-foreground">{sg.detail}</span></span>
+                    </button>
+                  ))}
+                </>
+              )}
+              {activeQ.trim().length < 1 && recents.length === 0 && <div className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"><Search className="h-3.5 w-3.5" />Type a few letters of a place, street or landmark</div>}
             </div>
           )}
           {typing ? null : !both ? (

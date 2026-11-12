@@ -188,4 +188,4 @@
 /* The home-page box sits still on purpose — no walk/waddle animation here. */
 
 /* Soften free OSM tiles to match Zippy look */
-.zippy-tiles { filter: sepia(0.35) saturate(0.8) brightness(1.04) contrast(0.92) hue-rotate(-12deg); }
+.zippy-tiles { filter: sepia(0.12) saturate(1.05) brightness(1.02); }
