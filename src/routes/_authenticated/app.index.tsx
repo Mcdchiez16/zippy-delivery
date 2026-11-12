@@ -9,6 +9,7 @@ import { firstName, useAccount } from "@/hooks/use-account";
 import { myOrdersQuery } from "@/hooks/use-orders";
 import { ACTIVE_STATUSES, type OrderStatus } from "@/lib/lifecycle";
 import box from "@/assets/box-hero.png";
+import { BoxBuddy } from "@/components/zippy/box-buddy";
 import type { VehicleCode } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/app/")({
@@ -45,7 +46,7 @@ function CustomerHome() {
           <p className="mt-1 text-sm font-semibold opacity-90">Your next delivery is just a few taps away.</p>
           <Button asChild variant="sun" className="mt-4 h-11 px-5"><Link to="/app/send">Send a Package</Link></Button>
         </div>
-        <img src={box} alt="" className="absolute -bottom-3 -right-3 h-40 w-40 animate-float object-contain" />
+        <BoxBuddy className="absolute -bottom-1 right-1 h-36 w-32" />
       </section>
 
       <section>

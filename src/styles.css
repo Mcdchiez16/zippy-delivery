@@ -168,3 +168,19 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* Box buddy mascot */
+@keyframes bb-stroll { 0%,100% { transform: translateX(0); } 30% { transform: translateX(-46px); } 35%,50% { transform: translateX(-46px); } 80% { transform: translateX(0); } }
+@keyframes bb-flip { 0%,34% { transform: scaleX(1); } 35%,84% { transform: scaleX(-1); } 85%,100% { transform: scaleX(1); } }
+@keyframes bb-step { 0%,100% { transform: rotate(14deg); } 50% { transform: rotate(-14deg); } }
+@keyframes bb-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes bb-wave { 0%,55%,100% { transform: rotate(0); } 60% { transform: rotate(-70deg); } 66% { transform: rotate(-35deg); } 72% { transform: rotate(-70deg); } 78% { transform: rotate(-35deg); } 84% { transform: rotate(-70deg); } 90% { transform: rotate(0); } }
+@keyframes bb-blink { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.bb-stroll { animation: bb-stroll 8s ease-in-out infinite; }
+.bb-flip { animation: bb-flip 8s step-end infinite; transform-origin: center; }
+.bb-body { animation: bb-bob .5s ease-in-out infinite; }
+.bb-leg-l { transform-origin: 45px 100px; animation: bb-step .5s ease-in-out infinite; }
+.bb-leg-r { transform-origin: 75px 100px; animation: bb-step .5s ease-in-out infinite reverse; }
+.bb-arm-l { transform-origin: 30px 67px; animation: bb-step 1s ease-in-out infinite; }
+.bb-arm-r { transform-origin: 90px 67px; animation: bb-wave 4s ease-in-out infinite; }
+.bb-eyes { transform-origin: 60px 70px; transform-box: view-box; animation: bb-blink 3.5s infinite; }

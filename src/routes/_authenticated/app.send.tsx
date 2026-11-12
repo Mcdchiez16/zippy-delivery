@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
+import { ClientOnly } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ArrowLeft, Crosshair, MapPin, Flag, Check, Clock, CalendarClock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,8 @@ export const Route = createFileRoute("/_authenticated/app/send")({
   head: () => ({ meta: [{ title: "Send a package — Zippy" }, { name: "description", content: "Book a Zippy delivery." }] }),
   component: SendFlow,
 });
+
+const LiveMap = lazy(() => import("@/components/zippy/live-map"));
 
 const STEPS = ["Pickup", "Drop-off", "Package", "Vehicle", "Timing", "Review"];
 const CATEGORIES = ["Documents", "Food", "Groceries", "Clothing", "Electronics", "Gifts", "Furniture", "Business Goods", "Other"] as const;
@@ -84,6 +87,8 @@ function SendFlow() {
   const navigate = useNavigate();
   const { data: acc } = useAccount();
   const { data: cfg, isLoading } = useQuery(configQuery);
+  const [stage, setStage] = useState<"map" | "form">("map");
+  const [editing, setEditing] = useState<"from" | "to">("from");
   const [step, setStep] = useState(0);
   const [pickup, setPickup] = useState<Stop>(emptyStop);
   const [dropoff, setDropoff] = useState<Stop>(emptyStop);
@@ -157,11 +162,80 @@ function SendFlow() {
 
   if (isLoading || !cfg) return <CourierLoader label="Loading prices…" />;
 
+  if (stage === "map") {
+    const fromP = pickup.lat != null ? { lat: pickup.lat, lng: pickup.lng! } : null;
+    const toP = dropoff.lat != null ? { lat: dropoff.lat, lng: dropoff.lng! } : null;
+    const setPlace = (which: "from" | "to", name: string, lat: number, lng: number) => {
+      if (which === "from") { setPickup({ ...pickup, area: name, lat, lng }); setEditing("to"); }
+      else setDropoff({ ...dropoff, area: name, lat, lng });
+    };
+    const locate = () => navigator.geolocation?.getCurrentPosition(
+      (p) => setPlace("from", "Current location", p.coords.latitude, p.coords.longitude),
+      () => toast.error("We couldn't get your location. Pick a place instead."),
+      { timeout: 8000 },
+    );
+    const both = fromP && toP;
+    return (
+      <div className="fixed inset-0 z-40 mx-auto max-w-md bg-secondary">
+        <ClientOnly fallback={null}><Suspense fallback={null}>
+          <LiveMap from={fromP} to={toP} onPick={(pt) => setPlace(editing, editing === "from" ? "Pinned pickup" : "Pinned drop-off", pt.lat, pt.lng)} />
+        </Suspense></ClientOnly>
+        <Link to="/app" aria-label="Back" className="absolute left-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><ArrowLeft className="h-5 w-5" /></Link>
+        <button onClick={locate} aria-label="Use my location" className="absolute right-4 top-4 z-[500] grid h-11 w-11 place-items-center rounded-full bg-card shadow-float"><Crosshair className="h-5 w-5" /></button>
+        <div className="absolute inset-x-0 bottom-0 z-[500] max-h-[70%] overflow-y-auto rounded-t-[2rem] bg-card p-4 pb-6 shadow-float">
+          <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-muted" />
+          <div className="rounded-3xl bg-muted p-1.5">
+            {(["from", "to"] as const).map((w) => {
+              const v = w === "from" ? pickup.area : dropoff.area;
+              return (
+                <button key={w} onClick={() => setEditing(w)} className={cn("flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition", editing === w && "bg-card shadow-card")}>
+                  <span className={cn("h-3 w-3 shrink-0 rounded-full", w === "from" ? "bg-primary" : "bg-sky")} />
+                  <span className="text-xs font-bold uppercase text-muted-foreground w-10">{w}</span>
+                  <span className={cn("flex-1 truncate font-bold", !v && "text-muted-foreground")}>{v || (w === "from" ? "Pickup point" : "Where to?")}</span>
+                </button>
+              );
+            })}
+          </div>
+          {!both ? (
+            <div className="mt-3">
+              <p className="mb-2 text-xs font-bold text-muted-foreground">Tap the map or choose a place</p>
+              <div className="flex flex-wrap gap-2">
+                {PLACES.map((p) => <button key={p.name} onClick={() => setPlace(editing, p.name, p.lat, p.lng)} className="rounded-full border-2 border-border px-3 py-1.5 text-sm font-bold transition active:scale-95">{p.name}</button>)}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-3">
+              <div className="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 pb-2">
+                {options.map(({ v, reason, quote }) => {
+                  const sel = (vehicle ?? recommended) === v.code && !reason;
+                  return (
+                    <button key={v.code} disabled={!!reason} onClick={() => setVehicle(v.code)} className={cn("w-28 shrink-0 snap-start rounded-3xl border-2 p-2 text-left transition", sel ? "border-primary bg-secondary animate-bounce-in" : "border-transparent bg-muted", reason && "opacity-50")}>
+                      <img src={VEHICLE_ART[v.code]} alt="" className="mx-auto h-14 w-14 object-contain" />
+                      <div className="font-display text-sm font-extrabold">{v.name}</div>
+                      <div className="text-sm font-extrabold">{quote && !reason ? money(quote.total_minor, quote.currency) : "—"}</div>
+                      <div className="text-[11px] font-semibold text-muted-foreground">{reason ? "Too far / big" : `~${quote?.duration_min} min`}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">≈ {distance} km · final price confirmed after package details</p>
+              <Button variant="zippy" size="xl" className="mt-3 w-full" onClick={() => {
+                const pick = vehicle ?? recommended;
+                if (!pick) { toast.error("No vehicle available for this trip."); return; }
+                setVehicle(pick); setStage("form"); setStep(0);
+              }}>Continue</Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-5 pt-5">
       <div className="flex items-center gap-3">
         {step === 0 ? (
-          <Link to="/app" aria-label="Back" className="grid h-10 w-10 place-items-center rounded-2xl bg-card shadow-card"><ArrowLeft className="h-5 w-5" /></Link>
+          <button aria-label="Back" onClick={() => setStage("map")} className="grid h-10 w-10 place-items-center rounded-2xl bg-card shadow-card"><ArrowLeft className="h-5 w-5" /></button>
         ) : (
           <button aria-label="Back" onClick={() => setStep(step - 1)} className="grid h-10 w-10 place-items-center rounded-2xl bg-card shadow-card"><ArrowLeft className="h-5 w-5" /></button>
         )}
