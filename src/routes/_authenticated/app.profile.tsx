@@ -28,7 +28,7 @@ function Profile() {
   async function save() {
     if (!acc) return;
     const { error } = await supabase.from("profiles").update({ full_name: name.trim(), phone: phone.trim() }).eq("id", acc.user.id);
-    if (error) return toast.error("Couldn't save. Try again.");
+    if (error) { toast.error("Couldn't save. Try again."); return; }
     toast.success("Profile saved");
     qc.invalidateQueries({ queryKey: ["account"] });
   }

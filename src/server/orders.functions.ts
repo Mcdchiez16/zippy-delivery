@@ -85,7 +85,7 @@ export const createDeliveryOrder = createServerFn({ method: "POST" })
     const s = (k: "pickup" | "dropoff", seq: number) => ({ order_id: order.id, seq, kind: k, ...data[k] });
     const results = await Promise.all([
       supabaseAdmin.from("delivery_stops").insert([s("pickup", 0), s("dropoff", 1)]),
-      supabaseAdmin.from("packages").insert({ order_id: order.id, ...data.pkg }),
+      supabaseAdmin.from("packages").insert({ order_id: order.id, ...data.pkg, declared_value_minor: data.pkg.declared_value_minor ?? null }),
       supabaseAdmin.from("delivery_quotes").insert({ order_id: order.id, vehicle_type: data.vehicle_type, breakdown: quote.lines as never, total_minor: quote.total_minor, currency: quote.currency }),
       supabaseAdmin.from("delivery_status_events").insert({ order_id: order.id, to_status: "searching", actor_id: userId }),
     ]);

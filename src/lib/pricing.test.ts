@@ -18,28 +18,28 @@ const small = { weight_kg: 1, length_cm: 30, width_cm: 20, height_cm: 5, quantit
 
 describe("vehicle eligibility", () => {
   it("rejects a bicycle for packages heavier than its limit", () => {
-    expect(ineligibilityReason(V[0], { ...small, weight_kg: 6 }, 3)).toMatch(/Too heavy/);
+    expect(ineligibilityReason(V[0]!, { ...small, weight_kg: 6 }, 3)).toMatch(/Too heavy/);
   });
   it("counts quantity toward weight", () => {
-    expect(ineligibilityReason(V[1], { ...small, weight_kg: 7, quantity: 3 }, 3)).toMatch(/Too heavy/);
+    expect(ineligibilityReason(V[1]!, { ...small, weight_kg: 7, quantity: 3 }, 3)).toMatch(/Too heavy/);
   });
   it("rejects a bicycle for fragile items", () => {
-    expect(ineligibilityReason(V[0], { ...small, fragile: true }, 3)).toMatch(/Fragile/);
+    expect(ineligibilityReason(V[0]!, { ...small, fragile: true }, 3)).toMatch(/Fragile/);
   });
   it("rejects trips longer than the vehicle's range", () => {
-    expect(ineligibilityReason(V[0], small, 9)).toMatch(/Too far/);
+    expect(ineligibilityReason(V[0]!, small, 9)).toMatch(/Too far/);
   });
 });
 
 describe("pricing", () => {
   it("prices a 5 km bicycle trip at K35.00", () => {
-    expect(quoteFor(V[0], R[0], small, 5, false).total_minor).toBe(3500);
+    expect(quoteFor(V[0]!, R[0]!, small, 5, false).total_minor).toBe(3500);
   });
   it("applies the minimum fare", () => {
-    expect(quoteFor(V[0], R[0], small, 0.5, false).total_minor).toBe(2000);
+    expect(quoteFor(V[0]!, R[0]!, small, 0.5, false).total_minor).toBe(2000);
   });
   it("adds fragile and scheduled fees", () => {
-    const q = quoteFor(V[1], R[1], { ...small, fragile: true }, 10, true);
+    const q = quoteFor(V[1]!, R[1]!, { ...small, fragile: true }, 10, true);
     expect(q.total_minor).toBe(2500 + 6000 + 50 + 1000 + 500);
   });
   it("recommends the cheapest eligible vehicle", () => {

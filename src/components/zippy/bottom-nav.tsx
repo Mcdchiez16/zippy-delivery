@@ -11,7 +11,7 @@ export function BottomNav({ items }: { items: NavItem[] }) {
           <Link
             key={it.to}
             to={it.to}
-            activeOptions={{ exact: it.exact }}
+            activeOptions={{ exact: !!it.exact }}
             className="group flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[11px] font-bold text-muted-foreground transition data-[status=active]:text-primary"
           >
             <span className="grid h-8 w-12 place-items-center rounded-full transition group-data-[status=active]:bg-secondary">

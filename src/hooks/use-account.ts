@@ -23,5 +23,5 @@ export function useAccount() {
 
 export function firstName(acc: { profile?: { full_name: string | null } | null; user: { email?: string } } | null | undefined) {
   const n = acc?.profile?.full_name?.trim() || acc?.user.email?.split("@")[0] || "there";
-  return n.split(" ")[0];
+  return n.split(" ")[0] ?? n;
 }

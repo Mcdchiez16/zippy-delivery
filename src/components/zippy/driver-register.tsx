@@ -28,7 +28,7 @@ export function DriverRegister({ userId, defaultName }: { userId: string; defaul
     e.preventDefault();
     const required = DOCS.filter((d) => d.always || needsLicence);
     const missing = required.find((d) => !files[d.k]);
-    if (missing) return toast.error(`Please add your ${missing.label.toLowerCase()}.`);
+    if (missing) { toast.error(`Please add your ${missing.label.toLowerCase()}.`); return; }
     setBusy(true);
     try {
       const { error } = await supabase.rpc("register_driver", {

@@ -66,9 +66,9 @@ function ApprovedHome({ name, uid, online, rating }: { name: string; uid: string
   async function toggle() {
     setBusy(true);
     const go = async (lat?: number, lng?: number) => {
-      const { error } = await supabase.rpc("set_driver_online", { _online: !online, _lat: lat, _lng: lng });
+      const { error } = await supabase.rpc("set_driver_online", { _online: !online, ...(lat != null && lng != null ? { _lat: lat, _lng: lng } : {}) });
       setBusy(false);
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       toast(online ? "You're offline. Rest up!" : "You're online. Let's find your next delivery!");
       qc.invalidateQueries({ queryKey: ["account"] });
       qc.invalidateQueries({ queryKey: ["orders"] });

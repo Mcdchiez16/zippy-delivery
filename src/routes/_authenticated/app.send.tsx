@@ -40,7 +40,7 @@ const configQuery = {
 function StopForm({ value, onChange, kind }: { value: Stop; onChange: (s: Stop) => void; kind: "pickup" | "dropoff" }) {
   const set = (k: keyof Stop, v: string | number | null) => onChange({ ...value, [k]: v });
   function useCurrent() {
-    if (!navigator.geolocation) return toast.error("Location isn't available on this device. Pick an area instead.");
+    if (!navigator.geolocation) { toast.error("Location isn't available on this device. Pick an area instead."); return; }
     navigator.geolocation.getCurrentPosition(
       (p) => onChange({ ...value, area: "Current location", lat: p.coords.latitude, lng: p.coords.longitude }),
       () => toast.error("We couldn't get your location. Please allow location access or pick an area."),
@@ -124,7 +124,7 @@ function SendFlow() {
       if (!at) err = "Pick a date and time.";
       else if (new Date(at).getTime() < Date.now() + 15 * 60_000) err = "Schedule at least 15 minutes from now.";
     }
-    if (err) return toast.error(err);
+    if (err) { toast.error(err); return; }
     setStep(step + 1);
   }
 

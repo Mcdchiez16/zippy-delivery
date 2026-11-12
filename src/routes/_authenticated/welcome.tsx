@@ -31,7 +31,7 @@ function Welcome() {
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("profiles").update({ usage_intent: pick }).eq("id", u.user!.id);
     setBusy(false);
-    if (error) return toast.error("Couldn't save your choice. Try again.");
+    if (error) { toast.error("Couldn't save your choice. Try again."); return; }
     await qc.invalidateQueries({ queryKey: ["account"] });
     navigate({ to: pick === "deliver" ? "/driver" : "/app" });
   }

@@ -44,7 +44,7 @@ function OrderPage() {
     setCancelling(true);
     const { error } = await supabase.rpc("advance_order", { _order_id: id, _to: "cancelled", _note: "Cancelled by customer" });
     setCancelling(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast("Delivery cancelled");
     qc.invalidateQueries({ queryKey: ["orders"] });
   }

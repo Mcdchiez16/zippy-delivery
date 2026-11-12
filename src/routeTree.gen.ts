@@ -13,10 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedDriverRouteImport } from './routes/_authenticated/driver'
 import { Route as AuthenticatedGoRouteImport } from './routes/_authenticated/go'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin.pricing'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/app.orders'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
@@ -24,6 +27,10 @@ import { Route as AuthenticatedAppSendRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAppTrackRouteImport } from './routes/_authenticated/app.track'
 import { Route as AuthenticatedAppWalletRouteImport } from './routes/_authenticated/app.wallet'
 import { Route as AuthenticatedDriverIndexRouteImport } from './routes/_authenticated/driver.index'
+import { Route as AuthenticatedDriverActivityRouteImport } from './routes/_authenticated/driver.activity'
+import { Route as AuthenticatedDriverEarningsRouteImport } from './routes/_authenticated/driver.earnings'
+import { Route as AuthenticatedDriverProfileRouteImport } from './routes/_authenticated/driver.profile'
+import { Route as AuthenticatedDriverRequestsRouteImport } from './routes/_authenticated/driver.requests'
 import { Route as AuthenticatedAppOrderIdRouteImport } from './routes/_authenticated/app.order.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -45,6 +52,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -65,6 +77,17 @@ const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
   path: '/welcome',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminPricingRoute =
+  AuthenticatedAdminPricingRouteImport.update({
+    id: '/pricing',
+    path: '/pricing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -101,6 +124,30 @@ const AuthenticatedDriverIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDriverRoute,
   } as any)
+const AuthenticatedDriverActivityRoute =
+  AuthenticatedDriverActivityRouteImport.update({
+    id: '/activity',
+    path: '/activity',
+    getParentRoute: () => AuthenticatedDriverRoute,
+  } as any)
+const AuthenticatedDriverEarningsRoute =
+  AuthenticatedDriverEarningsRouteImport.update({
+    id: '/earnings',
+    path: '/earnings',
+    getParentRoute: () => AuthenticatedDriverRoute,
+  } as any)
+const AuthenticatedDriverProfileRoute =
+  AuthenticatedDriverProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedDriverRoute,
+  } as any)
+const AuthenticatedDriverRequestsRoute =
+  AuthenticatedDriverRequestsRouteImport.update({
+    id: '/requests',
+    path: '/requests',
+    getParentRoute: () => AuthenticatedDriverRoute,
+  } as any)
 const AuthenticatedAppOrderIdRoute = AuthenticatedAppOrderIdRouteImport.update({
   id: '/order/$id',
   path: '/order/$id',
@@ -111,15 +158,22 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/driver': typeof AuthenticatedDriverRouteWithChildren
   '/go': typeof AuthenticatedGoRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/admin/pricing': typeof AuthenticatedAdminPricingRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/send': typeof AuthenticatedAppSendRoute
   '/app/track': typeof AuthenticatedAppTrackRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
+  '/driver/activity': typeof AuthenticatedDriverActivityRoute
+  '/driver/earnings': typeof AuthenticatedDriverEarningsRoute
+  '/driver/profile': typeof AuthenticatedDriverProfileRoute
+  '/driver/requests': typeof AuthenticatedDriverRequestsRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/driver/': typeof AuthenticatedDriverIndexRoute
   '/app/order/$id': typeof AuthenticatedAppOrderIdRoute
@@ -130,11 +184,17 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/go': typeof AuthenticatedGoRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/admin/pricing': typeof AuthenticatedAdminPricingRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/send': typeof AuthenticatedAppSendRoute
   '/app/track': typeof AuthenticatedAppTrackRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
+  '/driver/activity': typeof AuthenticatedDriverActivityRoute
+  '/driver/earnings': typeof AuthenticatedDriverEarningsRoute
+  '/driver/profile': typeof AuthenticatedDriverProfileRoute
+  '/driver/requests': typeof AuthenticatedDriverRequestsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/driver': typeof AuthenticatedDriverIndexRoute
   '/app/order/$id': typeof AuthenticatedAppOrderIdRoute
@@ -145,15 +205,22 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/driver': typeof AuthenticatedDriverRouteWithChildren
   '/_authenticated/go': typeof AuthenticatedGoRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
   '/_authenticated/app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/send': typeof AuthenticatedAppSendRoute
   '/_authenticated/app/track': typeof AuthenticatedAppTrackRoute
   '/_authenticated/app/wallet': typeof AuthenticatedAppWalletRoute
+  '/_authenticated/driver/activity': typeof AuthenticatedDriverActivityRoute
+  '/_authenticated/driver/earnings': typeof AuthenticatedDriverEarningsRoute
+  '/_authenticated/driver/profile': typeof AuthenticatedDriverProfileRoute
+  '/_authenticated/driver/requests': typeof AuthenticatedDriverRequestsRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/driver/': typeof AuthenticatedDriverIndexRoute
   '/_authenticated/app/order/$id': typeof AuthenticatedAppOrderIdRoute
@@ -164,15 +231,22 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/reset-password'
+    | '/admin'
     | '/app'
     | '/driver'
     | '/go'
     | '/welcome'
+    | '/admin/pricing'
     | '/app/orders'
     | '/app/profile'
     | '/app/send'
     | '/app/track'
     | '/app/wallet'
+    | '/driver/activity'
+    | '/driver/earnings'
+    | '/driver/profile'
+    | '/driver/requests'
+    | '/admin/'
     | '/app/'
     | '/driver/'
     | '/app/order/$id'
@@ -183,11 +257,17 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/go'
     | '/welcome'
+    | '/admin/pricing'
     | '/app/orders'
     | '/app/profile'
     | '/app/send'
     | '/app/track'
     | '/app/wallet'
+    | '/driver/activity'
+    | '/driver/earnings'
+    | '/driver/profile'
+    | '/driver/requests'
+    | '/admin'
     | '/app'
     | '/driver'
     | '/app/order/$id'
@@ -197,15 +277,22 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/reset-password'
+    | '/_authenticated/admin'
     | '/_authenticated/app'
     | '/_authenticated/driver'
     | '/_authenticated/go'
     | '/_authenticated/welcome'
+    | '/_authenticated/admin/pricing'
     | '/_authenticated/app/orders'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/send'
     | '/_authenticated/app/track'
     | '/_authenticated/app/wallet'
+    | '/_authenticated/driver/activity'
+    | '/_authenticated/driver/earnings'
+    | '/_authenticated/driver/profile'
+    | '/_authenticated/driver/requests'
+    | '/_authenticated/admin/'
     | '/_authenticated/app/'
     | '/_authenticated/driver/'
     | '/_authenticated/app/order/$id'
@@ -248,6 +335,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app': {
       id: '/_authenticated/app'
       path: '/app'
@@ -275,6 +369,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/welcome'
       preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/pricing': {
+      id: '/_authenticated/admin/pricing'
+      path: '/pricing'
+      fullPath: '/admin/pricing'
+      preLoaderRoute: typeof AuthenticatedAdminPricingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
@@ -325,6 +433,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDriverIndexRouteImport
       parentRoute: typeof AuthenticatedDriverRoute
     }
+    '/_authenticated/driver/activity': {
+      id: '/_authenticated/driver/activity'
+      path: '/activity'
+      fullPath: '/driver/activity'
+      preLoaderRoute: typeof AuthenticatedDriverActivityRouteImport
+      parentRoute: typeof AuthenticatedDriverRoute
+    }
+    '/_authenticated/driver/earnings': {
+      id: '/_authenticated/driver/earnings'
+      path: '/earnings'
+      fullPath: '/driver/earnings'
+      preLoaderRoute: typeof AuthenticatedDriverEarningsRouteImport
+      parentRoute: typeof AuthenticatedDriverRoute
+    }
+    '/_authenticated/driver/profile': {
+      id: '/_authenticated/driver/profile'
+      path: '/profile'
+      fullPath: '/driver/profile'
+      preLoaderRoute: typeof AuthenticatedDriverProfileRouteImport
+      parentRoute: typeof AuthenticatedDriverRoute
+    }
+    '/_authenticated/driver/requests': {
+      id: '/_authenticated/driver/requests'
+      path: '/requests'
+      fullPath: '/driver/requests'
+      preLoaderRoute: typeof AuthenticatedDriverRequestsRouteImport
+      parentRoute: typeof AuthenticatedDriverRoute
+    }
     '/_authenticated/app/order/$id': {
       id: '/_authenticated/app/order/$id'
       path: '/order/$id'
@@ -334,6 +470,19 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
@@ -359,10 +508,18 @@ const AuthenticatedAppRouteWithChildren =
   AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
 
 interface AuthenticatedDriverRouteChildren {
+  AuthenticatedDriverActivityRoute: typeof AuthenticatedDriverActivityRoute
+  AuthenticatedDriverEarningsRoute: typeof AuthenticatedDriverEarningsRoute
+  AuthenticatedDriverProfileRoute: typeof AuthenticatedDriverProfileRoute
+  AuthenticatedDriverRequestsRoute: typeof AuthenticatedDriverRequestsRoute
   AuthenticatedDriverIndexRoute: typeof AuthenticatedDriverIndexRoute
 }
 
 const AuthenticatedDriverRouteChildren: AuthenticatedDriverRouteChildren = {
+  AuthenticatedDriverActivityRoute: AuthenticatedDriverActivityRoute,
+  AuthenticatedDriverEarningsRoute: AuthenticatedDriverEarningsRoute,
+  AuthenticatedDriverProfileRoute: AuthenticatedDriverProfileRoute,
+  AuthenticatedDriverRequestsRoute: AuthenticatedDriverRequestsRoute,
   AuthenticatedDriverIndexRoute: AuthenticatedDriverIndexRoute,
 }
 
@@ -370,6 +527,7 @@ const AuthenticatedDriverRouteWithChildren =
   AuthenticatedDriverRoute._addFileChildren(AuthenticatedDriverRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
   AuthenticatedDriverRoute: typeof AuthenticatedDriverRouteWithChildren
   AuthenticatedGoRoute: typeof AuthenticatedGoRoute
@@ -377,6 +535,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
   AuthenticatedDriverRoute: AuthenticatedDriverRouteWithChildren,
   AuthenticatedGoRoute: AuthenticatedGoRoute,

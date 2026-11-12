@@ -26,7 +26,7 @@ export function ActiveJob({ o }: { o: Tables<"delivery_orders"> }) {
     setBusy(true);
     const { error } = await supabase.rpc("advance_order", { _order_id: o.id, _to: next.to });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (next.to === "delivered") toast.success(`Delivered! ${money(o.driver_earnings_minor, o.currency)} added to your earnings 🎉`);
     qc.invalidateQueries({ queryKey: ["orders"] });
   }

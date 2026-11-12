@@ -53,15 +53,15 @@ function Landing() {
     );
   }
 
-  const s = SLIDES[i];
+  const s = SLIDES[i] ?? SLIDES[0];
   const last = i === SLIDES.length - 1;
   return (
     <main
       className="mx-auto flex min-h-screen max-w-md flex-col px-6 pb-8 pt-6"
-      onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+      onTouchStart={(e) => (touchX.current = e.touches[0]?.clientX ?? null)}
       onTouchEnd={(e) => {
         if (touchX.current == null) return;
-        const dx = e.changedTouches[0].clientX - touchX.current;
+        const dx = (e.changedTouches[0]?.clientX ?? touchX.current) - touchX.current;
         if (dx < -50 && !last) setI(i + 1);
         if (dx > 50 && i > 0) setI(i - 1);
         touchX.current = null;

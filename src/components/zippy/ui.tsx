@@ -70,7 +70,7 @@ export function Confetti({ fire }: { fire: boolean }) {
   useEffect(() => {
     if (!fire) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setPieces(Array.from({ length: 60 }).map((_, i) => ({ left: Math.random() * 100, delay: Math.random() * 0.4, color: CONFETTI_COLORS[i % 5], dur: 1.6 + Math.random() * 1.4 })));
+    setPieces(Array.from({ length: 60 }).map((_, i) => ({ left: Math.random() * 100, delay: Math.random() * 0.4, color: CONFETTI_COLORS[i % 5]!, dur: 1.6 + Math.random() * 1.4 })));
     const t = setTimeout(() => setPieces([]), 3500);
     return () => clearTimeout(t);
   }, [fire]);
