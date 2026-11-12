@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794483111985,
+      "tag": "0000_zippy_phase1",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794483126860,
+      "tag": "0001_driver_docs_storage",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794483561470,
+      "tag": "0002_order_driver_info",
+      "breakpoints": true
+    }
+  ]
+}
