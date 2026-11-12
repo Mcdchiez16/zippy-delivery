@@ -185,19 +185,4 @@
 .bb-arm-r { transform-origin: 90px 67px; animation: bb-wave 4s ease-in-out infinite; }
 .bb-eyes { transform-origin: 60px 70px; transform-box: view-box; animation: bb-blink 3.5s infinite; }
 
-/* Live hero box: waddles, hops, turns and "waves" (tilt wiggle) */
-@keyframes box-walk { 0%,100% { transform: translateX(0); } 40% { transform: translateX(-40px); } 50%,60% { transform: translateX(-40px); } 90% { transform: translateX(0); } }
-@keyframes box-waddle {
-  0%,100% { transform: translateY(0) rotate(0) scale(1,1); }
-  10% { transform: translateY(-10px) rotate(-6deg) scale(.97,1.04); }
-  20% { transform: translateY(0) rotate(0) scale(1.05,.95); }
-  30% { transform: translateY(-10px) rotate(6deg) scale(.97,1.04); }
-  40% { transform: translateY(0) rotate(0) scale(1.05,.95); }
-  48% { transform: translateY(-18px) rotate(0) scale(.95,1.06); }
-  52% { transform: rotate(-12deg); } 55% { transform: rotate(10deg); } 58% { transform: rotate(-12deg); } 61% { transform: rotate(10deg); } 64% { transform: rotate(0); }
-  70% { transform: translateY(-10px) rotate(-6deg); } 80% { transform: translateY(0) rotate(6deg) scale(1.04,.96); } 90% { transform: translateY(-8px) rotate(0); }
-}
-@keyframes box-shadow { 0%,20%,40%,100% { transform: scaleX(1); opacity:.25 } 10%,30%,48% { transform: scaleX(.7); opacity:.12 } }
-.box-live { animation: box-walk 7s ease-in-out infinite; }
-.box-live-img { position: relative; transform-origin: 50% 90%; animation: box-waddle 7s ease-in-out infinite; }
-.box-live-shadow { position: absolute; left: 25%; right: 25%; bottom: 10px; height: 10px; border-radius: 50%; background: var(--color-ink); animation: box-shadow 7s ease-in-out infinite; }
+/* The home-page box sits still on purpose — no walk/waddle animation here. */
