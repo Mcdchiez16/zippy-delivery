@@ -29,7 +29,7 @@ export default function LiveMap({ from, to, onPick }: { from: P; to: P; onPick?:
 
   useEffect(() => {
     const m = map.current, g = layer.current;
-    if (!m || !g) return;
+    if (!m || !g) return undefined;
     g.clearLayers();
     const pts: L.LatLngExpression[] = [];
     if (from) { L.marker([from.lat, from.lng], { icon: pin("#58CC02", PKG, "Pickup") }).addTo(g); pts.push([from.lat, from.lng]); }
@@ -50,6 +50,7 @@ export default function LiveMap({ from, to, onPick }: { from: P; to: P; onPick?:
         .catch(() => {});
       return () => ac.abort();
     } else if (pts.length === 1) m.setView(pts[0]!, 14);
+    return undefined;
   }, [from?.lat, from?.lng, to?.lat, to?.lng]);
 
   return <div ref={el} className="absolute inset-0 z-0" />;
