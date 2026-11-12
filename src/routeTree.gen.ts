@@ -21,6 +21,8 @@ import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin.pricing'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
+import { Route as AuthenticatedAppBusinessRouteImport } from './routes/_authenticated/app.business'
+import { Route as AuthenticatedAppNotificationsRouteImport } from './routes/_authenticated/app.notifications'
 import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/app.orders'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
 import { Route as AuthenticatedAppSendRouteImport } from './routes/_authenticated/app.send'
@@ -32,6 +34,7 @@ import { Route as AuthenticatedDriverEarningsRouteImport } from './routes/_authe
 import { Route as AuthenticatedDriverProfileRouteImport } from './routes/_authenticated/driver.profile'
 import { Route as AuthenticatedDriverRequestsRouteImport } from './routes/_authenticated/driver.requests'
 import { Route as AuthenticatedAppOrderIdRouteImport } from './routes/_authenticated/app.order.$id'
+import { Route as AuthenticatedDriverJobIdRouteImport } from './routes/_authenticated/driver.job.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -93,6 +96,18 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppBusinessRoute =
+  AuthenticatedAppBusinessRouteImport.update({
+    id: '/business',
+    path: '/business',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppNotificationsRoute =
+  AuthenticatedAppNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppOrdersRoute = AuthenticatedAppOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -153,6 +168,12 @@ const AuthenticatedAppOrderIdRoute = AuthenticatedAppOrderIdRouteImport.update({
   path: '/order/$id',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedDriverJobIdRoute =
+  AuthenticatedDriverJobIdRouteImport.update({
+    id: '/job/$id',
+    path: '/job/$id',
+    getParentRoute: () => AuthenticatedDriverRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -164,6 +185,8 @@ export interface FileRoutesByFullPath {
   '/go': typeof AuthenticatedGoRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/app/business': typeof AuthenticatedAppBusinessRoute
+  '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/send': typeof AuthenticatedAppSendRoute
@@ -177,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/driver/': typeof AuthenticatedDriverIndexRoute
   '/app/order/$id': typeof AuthenticatedAppOrderIdRoute
+  '/driver/job/$id': typeof AuthenticatedDriverJobIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -185,6 +209,8 @@ export interface FileRoutesByTo {
   '/go': typeof AuthenticatedGoRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/app/business': typeof AuthenticatedAppBusinessRoute
+  '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
   '/app/send': typeof AuthenticatedAppSendRoute
@@ -198,6 +224,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/driver': typeof AuthenticatedDriverIndexRoute
   '/app/order/$id': typeof AuthenticatedAppOrderIdRoute
+  '/driver/job/$id': typeof AuthenticatedDriverJobIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -211,6 +238,8 @@ export interface FileRoutesById {
   '/_authenticated/go': typeof AuthenticatedGoRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/_authenticated/app/business': typeof AuthenticatedAppBusinessRoute
+  '/_authenticated/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/_authenticated/app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
   '/_authenticated/app/send': typeof AuthenticatedAppSendRoute
@@ -224,6 +253,7 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/driver/': typeof AuthenticatedDriverIndexRoute
   '/_authenticated/app/order/$id': typeof AuthenticatedAppOrderIdRoute
+  '/_authenticated/driver/job/$id': typeof AuthenticatedDriverJobIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -237,6 +267,8 @@ export interface FileRouteTypes {
     | '/go'
     | '/welcome'
     | '/admin/pricing'
+    | '/app/business'
+    | '/app/notifications'
     | '/app/orders'
     | '/app/profile'
     | '/app/send'
@@ -250,6 +282,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/driver/'
     | '/app/order/$id'
+    | '/driver/job/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -258,6 +291,8 @@ export interface FileRouteTypes {
     | '/go'
     | '/welcome'
     | '/admin/pricing'
+    | '/app/business'
+    | '/app/notifications'
     | '/app/orders'
     | '/app/profile'
     | '/app/send'
@@ -271,6 +306,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/driver'
     | '/app/order/$id'
+    | '/driver/job/$id'
   id:
     | '__root__'
     | '/'
@@ -283,6 +319,8 @@ export interface FileRouteTypes {
     | '/_authenticated/go'
     | '/_authenticated/welcome'
     | '/_authenticated/admin/pricing'
+    | '/_authenticated/app/business'
+    | '/_authenticated/app/notifications'
     | '/_authenticated/app/orders'
     | '/_authenticated/app/profile'
     | '/_authenticated/app/send'
@@ -296,6 +334,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/driver/'
     | '/_authenticated/app/order/$id'
+    | '/_authenticated/driver/job/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -391,6 +430,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/business': {
+      id: '/_authenticated/app/business'
+      path: '/business'
+      fullPath: '/app/business'
+      preLoaderRoute: typeof AuthenticatedAppBusinessRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/notifications': {
+      id: '/_authenticated/app/notifications'
+      path: '/notifications'
+      fullPath: '/app/notifications'
+      preLoaderRoute: typeof AuthenticatedAppNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/orders': {
       id: '/_authenticated/app/orders'
       path: '/orders'
@@ -468,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppOrderIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/driver/job/$id': {
+      id: '/_authenticated/driver/job/$id'
+      path: '/job/$id'
+      fullPath: '/driver/job/$id'
+      preLoaderRoute: typeof AuthenticatedDriverJobIdRouteImport
+      parentRoute: typeof AuthenticatedDriverRoute
+    }
   }
 }
 
@@ -485,6 +545,8 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppBusinessRoute: typeof AuthenticatedAppBusinessRoute
+  AuthenticatedAppNotificationsRoute: typeof AuthenticatedAppNotificationsRoute
   AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
   AuthenticatedAppSendRoute: typeof AuthenticatedAppSendRoute
@@ -495,6 +557,8 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppBusinessRoute: AuthenticatedAppBusinessRoute,
+  AuthenticatedAppNotificationsRoute: AuthenticatedAppNotificationsRoute,
   AuthenticatedAppOrdersRoute: AuthenticatedAppOrdersRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
   AuthenticatedAppSendRoute: AuthenticatedAppSendRoute,
@@ -513,6 +577,7 @@ interface AuthenticatedDriverRouteChildren {
   AuthenticatedDriverProfileRoute: typeof AuthenticatedDriverProfileRoute
   AuthenticatedDriverRequestsRoute: typeof AuthenticatedDriverRequestsRoute
   AuthenticatedDriverIndexRoute: typeof AuthenticatedDriverIndexRoute
+  AuthenticatedDriverJobIdRoute: typeof AuthenticatedDriverJobIdRoute
 }
 
 const AuthenticatedDriverRouteChildren: AuthenticatedDriverRouteChildren = {
@@ -521,6 +586,7 @@ const AuthenticatedDriverRouteChildren: AuthenticatedDriverRouteChildren = {
   AuthenticatedDriverProfileRoute: AuthenticatedDriverProfileRoute,
   AuthenticatedDriverRequestsRoute: AuthenticatedDriverRequestsRoute,
   AuthenticatedDriverIndexRoute: AuthenticatedDriverIndexRoute,
+  AuthenticatedDriverJobIdRoute: AuthenticatedDriverJobIdRoute,
 }
 
 const AuthenticatedDriverRouteWithChildren =

@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Architecture
+- Order lifecycle, driver acceptance and admin driver approvals run through SECURITY DEFINER Postgres RPCs (advance_order, accept_order, admin_set_driver_status) — the database is the source of truth for permissions and state transitions.
+- Booking prices are recomputed server-side in `src/lib/orders.functions.ts` from DB pricing rules; `src/lib/pricing.ts` is pure and shared by UI and server (tested).
+- Server-function modules live in `src/lib/*.functions.ts`, never under `src/server/` (import protection blocks client imports from that folder).

@@ -28,13 +28,15 @@ function CustomerHome() {
     <div className="space-y-6 px-5 pt-6">
       <header className="flex items-start justify-between">
         <div>
+          <Link to="/app/business" className="mb-2 inline-flex rounded-full bg-muted p-1 text-xs font-bold"><span className="rounded-full bg-card px-3 py-1 shadow-card">Personal</span><span className="px-3 py-1 text-muted-foreground">Business</span></Link>
           <h1 className="text-2xl font-extrabold">Hey {firstName(acc)}! 👋</h1>
           <p className="text-muted-foreground">Where are we delivering today?</p>
           <p className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-primary-deep"><MapPinned className="h-3.5 w-3.5" />{acc?.profile?.city ?? "Lusaka"}</p>
         </div>
-        <button aria-label="Notifications" className="relative grid h-11 w-11 place-items-center rounded-2xl bg-card shadow-card">
+        <Link to="/app/notifications" aria-label="Notifications" className="relative grid h-11 w-11 place-items-center rounded-2xl bg-card shadow-card">
           <Bell className="h-5 w-5" />
-        </button>
+          {active.length > 0 && <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-destructive text-[10px] font-extrabold text-destructive-foreground">{active.length}</span>}
+        </Link>
       </header>
 
       <section className="relative overflow-hidden rounded-3xl bg-hero p-5 text-primary-foreground shadow-float">

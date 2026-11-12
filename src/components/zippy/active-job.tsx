@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Flag, MapPin, Navigation, Phone } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, ProgressBar, StatusChip } from "./ui";
 import { orderDetailQuery } from "@/hooks/use-orders";
@@ -49,7 +50,9 @@ export function ActiveJob({ o }: { o: Tables<"delivery_orders"> }) {
           )}
           {target && <Button asChild variant="soft" className="h-11"><a href={`tel:${target.contact_phone}`}><Phone />Call</a></Button>}
         </div>
-        {next && <Button variant="zippy" size="xl" className="w-full" disabled={busy} onClick={advance}>{busy ? "Updating…" : next.label}</Button>}
+        {st === "arriving_pickup" || st === "in_transit" ? (
+          <Button asChild variant="zippy" size="xl" className="w-full"><Link to="/driver/job/$id" params={{ id: o.id }}>{st === "arriving_pickup" ? "Arrived at Pickup" : "Arrived at Destination"}</Link></Button>
+        ) : next && <Button variant="zippy" size="xl" className="w-full" disabled={busy} onClick={advance}>{busy ? "Updating…" : next.label}</Button>}
       </div>
     </Card>
   );

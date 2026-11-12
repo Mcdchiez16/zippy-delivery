@@ -11,7 +11,7 @@ import { PLACES } from "@/lib/places";
 import { estimateDistanceKm, ineligibilityReason, quoteFor, recommendVehicle, type PricingRule, type VehicleCode, type VehicleRule } from "@/lib/pricing";
 import { money } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { createDeliveryOrder } from "@/server/orders.functions";
+import { createDeliveryOrder } from "@/lib/orders.functions";
 import { useAccount } from "@/hooks/use-account";
 
 export const Route = createFileRoute("/_authenticated/app/send")({

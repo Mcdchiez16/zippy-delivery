@@ -13,6 +13,8 @@ import { money } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { VehicleCode } from "@/lib/pricing";
 import success from "@/assets/success-delivery.png";
+import { TrackingMap } from "@/components/zippy/tracking-map";
+import { Share2, LifeBuoy, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/app/order/$id")({
   head: () => ({ meta: [{ title: "Delivery — Zippy" }, { name: "description", content: "Track your Zippy delivery." }] }),
@@ -81,6 +83,15 @@ function OrderPage() {
         </Card>
       )}
 
+      {!["searching", "delivered", "cancelled"].includes(st) && (
+        <>
+          <TrackingMap status={st} art={VEHICLE_ART[order.vehicle_type as VehicleCode]} />
+          <div className="rounded-2xl bg-sky/15 p-3 text-center text-sm font-bold text-sky">
+            {st === "assigned" ? "Your driver is on the way! 🚴" : st === "arriving_pickup" ? "Driver arriving at pickup" : st === "picked_up" ? "Your package has been picked up!" : "Good news! Your delivery is on its way."} · ETA ~{order.duration_min} min
+          </div>
+        </>
+      )}
+
       {driver && st !== "searching" && (
         <Card className="flex items-center gap-3 p-4">
           <div className="grid h-14 w-14 place-items-center rounded-full bg-secondary font-display text-xl font-extrabold text-secondary-foreground">{driver.full_name.charAt(0)}</div>
@@ -91,6 +102,14 @@ function OrderPage() {
           <img src={VEHICLE_ART[driver.vehicle_type as VehicleCode]} alt="" className="h-12 w-12 object-contain" />
         </Card>
       )}
+      {driver && st !== "searching" && st !== "cancelled" && (
+        <div className="grid grid-cols-3 gap-2">
+          <Button variant="soft" className="h-11" onClick={() => toast("In-app chat arrives soon.")}><MessageCircle />Chat</Button>
+          <Button variant="soft" className="h-11" onClick={() => { navigator.clipboard?.writeText(`Track my Zippy delivery: #${order.tracking_code}`); toast.success("Tracking ID copied"); }}><Share2 />Share</Button>
+          <Button variant="soft" className="h-11" onClick={() => toast("Support chat arrives soon.")}><LifeBuoy />Help</Button>
+        </div>
+      )}
+      {st === "delivered" && <RateDriver />}
 
       {st !== "cancelled" && (
         <Card className="p-4">
@@ -134,5 +153,22 @@ function OrderPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+function RateDriver() {
+  const [stars, setStars] = useState(0);
+  const [sent, setSent] = useState(false);
+  if (sent) return <Card className="p-4 text-center font-bold">Thanks for your feedback! 💚</Card>;
+  return (
+    <Card className="p-4 text-center">
+      <div className="font-display font-extrabold">How was your driver?</div>
+      <div className="mt-2 flex justify-center gap-1">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button key={n} aria-label={`${n} stars`} onClick={() => setStars(n)}><Star className={cn("h-9 w-9 transition", n <= stars ? "fill-sun text-sun scale-110" : "text-border")} /></button>
+        ))}
+      </div>
+      <Button variant="zippy" className="mt-3 h-11 px-6" disabled={!stars} onClick={() => setSent(true)}>Submit rating</Button>
+    </Card>
   );
 }
