@@ -17,9 +17,13 @@ function AdminLayout() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-4">
           <span className="font-display text-xl font-extrabold text-primary">Zippy <span className="text-foreground">Admin</span></span>
-          <nav className="flex gap-1">
+          <nav className="flex flex-wrap gap-1">
             <Link to="/admin" activeOptions={{ exact: true }} className={tab}>Overview & drivers</Link>
-            <Link to="/admin/pricing" className={tab}>Vehicles & pricing</Link>
+            <Link to="/admin/operations" className={tab}>Live ops</Link>
+            <Link to="/admin/analytics" className={tab}>Analytics</Link>
+            <Link to="/admin/finance" className={tab}>Finance</Link>
+            <Link to="/admin/support" className={tab}>Support</Link>
+            <Link to="/admin/pricing" className={tab}>Pricing</Link>
           </nav>
           <Link to="/app" className="ml-auto text-sm font-bold text-muted-foreground">Customer app</Link>
         </div>

@@ -46,6 +46,8 @@ function Profile() {
       </Card>
       <Card className="divide-y divide-border">
         <Link to="/driver" className="flex items-center gap-3 p-4 font-bold"><Bike className="h-5 w-5 text-primary" />{acc?.driver ? "Switch to driver mode" : "Deliver with Zippy & earn"}</Link>
+        <Link to="/app/rewards" className="flex items-center gap-3 p-4 font-bold"><Shield className="h-5 w-5 text-sun" />Rewards & badges</Link>
+        <Link to="/app/help" className="flex items-center gap-3 p-4 font-bold"><Shield className="h-5 w-5 text-primary" />Help center</Link>
         {acc?.isAdmin && <Link to="/admin" className="flex items-center gap-3 p-4 font-bold"><Shield className="h-5 w-5 text-sky" />Admin dashboard</Link>}
         <button onClick={() => signOut(qc, navigate)} className="flex w-full items-center gap-3 p-4 font-bold text-destructive"><LogOut className="h-5 w-5" />Log out</button>
       </Card>

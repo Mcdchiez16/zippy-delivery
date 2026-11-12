@@ -19,12 +19,18 @@ import { Route as AuthenticatedDriverRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedGoRouteImport } from './routes/_authenticated/go'
 import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
+import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
+import { Route as AuthenticatedAdminOperationsRouteImport } from './routes/_authenticated/admin.operations'
 import { Route as AuthenticatedAdminPricingRouteImport } from './routes/_authenticated/admin.pricing'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated/app.index'
 import { Route as AuthenticatedAppBusinessRouteImport } from './routes/_authenticated/app.business'
+import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated/app.help'
 import { Route as AuthenticatedAppNotificationsRouteImport } from './routes/_authenticated/app.notifications'
 import { Route as AuthenticatedAppOrdersRouteImport } from './routes/_authenticated/app.orders'
 import { Route as AuthenticatedAppProfileRouteImport } from './routes/_authenticated/app.profile'
+import { Route as AuthenticatedAppRewardsRouteImport } from './routes/_authenticated/app.rewards'
 import { Route as AuthenticatedAppSendRouteImport } from './routes/_authenticated/app.send'
 import { Route as AuthenticatedAppTrackRouteImport } from './routes/_authenticated/app.track'
 import { Route as AuthenticatedAppWalletRouteImport } from './routes/_authenticated/app.wallet'
@@ -85,10 +91,34 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminFinanceRoute =
+  AuthenticatedAdminFinanceRouteImport.update({
+    id: '/finance',
+    path: '/finance',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminOperationsRoute =
+  AuthenticatedAdminOperationsRouteImport.update({
+    id: '/operations',
+    path: '/operations',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPricingRoute =
   AuthenticatedAdminPricingRouteImport.update({
     id: '/pricing',
     path: '/pricing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
@@ -102,6 +132,11 @@ const AuthenticatedAppBusinessRoute =
     path: '/business',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppHelpRoute = AuthenticatedAppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppNotificationsRoute =
   AuthenticatedAppNotificationsRouteImport.update({
     id: '/notifications',
@@ -116,6 +151,11 @@ const AuthenticatedAppOrdersRoute = AuthenticatedAppOrdersRouteImport.update({
 const AuthenticatedAppProfileRoute = AuthenticatedAppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppRewardsRoute = AuthenticatedAppRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppSendRoute = AuthenticatedAppSendRouteImport.update({
@@ -184,11 +224,17 @@ export interface FileRoutesByFullPath {
   '/driver': typeof AuthenticatedDriverRouteWithChildren
   '/go': typeof AuthenticatedGoRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/operations': typeof AuthenticatedAdminOperationsRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/app/business': typeof AuthenticatedAppBusinessRoute
+  '/app/help': typeof AuthenticatedAppHelpRoute
   '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/rewards': typeof AuthenticatedAppRewardsRoute
   '/app/send': typeof AuthenticatedAppSendRoute
   '/app/track': typeof AuthenticatedAppTrackRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -208,11 +254,17 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/go': typeof AuthenticatedGoRoute
   '/welcome': typeof AuthenticatedWelcomeRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/operations': typeof AuthenticatedAdminOperationsRoute
   '/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/app/business': typeof AuthenticatedAppBusinessRoute
+  '/app/help': typeof AuthenticatedAppHelpRoute
   '/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/app/orders': typeof AuthenticatedAppOrdersRoute
   '/app/profile': typeof AuthenticatedAppProfileRoute
+  '/app/rewards': typeof AuthenticatedAppRewardsRoute
   '/app/send': typeof AuthenticatedAppSendRoute
   '/app/track': typeof AuthenticatedAppTrackRoute
   '/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -237,11 +289,17 @@ export interface FileRoutesById {
   '/_authenticated/driver': typeof AuthenticatedDriverRouteWithChildren
   '/_authenticated/go': typeof AuthenticatedGoRoute
   '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/_authenticated/admin/operations': typeof AuthenticatedAdminOperationsRoute
   '/_authenticated/admin/pricing': typeof AuthenticatedAdminPricingRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/app/business': typeof AuthenticatedAppBusinessRoute
+  '/_authenticated/app/help': typeof AuthenticatedAppHelpRoute
   '/_authenticated/app/notifications': typeof AuthenticatedAppNotificationsRoute
   '/_authenticated/app/orders': typeof AuthenticatedAppOrdersRoute
   '/_authenticated/app/profile': typeof AuthenticatedAppProfileRoute
+  '/_authenticated/app/rewards': typeof AuthenticatedAppRewardsRoute
   '/_authenticated/app/send': typeof AuthenticatedAppSendRoute
   '/_authenticated/app/track': typeof AuthenticatedAppTrackRoute
   '/_authenticated/app/wallet': typeof AuthenticatedAppWalletRoute
@@ -266,11 +324,17 @@ export interface FileRouteTypes {
     | '/driver'
     | '/go'
     | '/welcome'
+    | '/admin/analytics'
+    | '/admin/finance'
+    | '/admin/operations'
     | '/admin/pricing'
+    | '/admin/support'
     | '/app/business'
+    | '/app/help'
     | '/app/notifications'
     | '/app/orders'
     | '/app/profile'
+    | '/app/rewards'
     | '/app/send'
     | '/app/track'
     | '/app/wallet'
@@ -290,11 +354,17 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/go'
     | '/welcome'
+    | '/admin/analytics'
+    | '/admin/finance'
+    | '/admin/operations'
     | '/admin/pricing'
+    | '/admin/support'
     | '/app/business'
+    | '/app/help'
     | '/app/notifications'
     | '/app/orders'
     | '/app/profile'
+    | '/app/rewards'
     | '/app/send'
     | '/app/track'
     | '/app/wallet'
@@ -318,11 +388,17 @@ export interface FileRouteTypes {
     | '/_authenticated/driver'
     | '/_authenticated/go'
     | '/_authenticated/welcome'
+    | '/_authenticated/admin/analytics'
+    | '/_authenticated/admin/finance'
+    | '/_authenticated/admin/operations'
     | '/_authenticated/admin/pricing'
+    | '/_authenticated/admin/support'
     | '/_authenticated/app/business'
+    | '/_authenticated/app/help'
     | '/_authenticated/app/notifications'
     | '/_authenticated/app/orders'
     | '/_authenticated/app/profile'
+    | '/_authenticated/app/rewards'
     | '/_authenticated/app/send'
     | '/_authenticated/app/track'
     | '/_authenticated/app/wallet'
@@ -416,11 +492,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/finance': {
+      id: '/_authenticated/admin/finance'
+      path: '/finance'
+      fullPath: '/admin/finance'
+      preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/operations': {
+      id: '/_authenticated/admin/operations'
+      path: '/operations'
+      fullPath: '/admin/operations'
+      preLoaderRoute: typeof AuthenticatedAdminOperationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/pricing': {
       id: '/_authenticated/admin/pricing'
       path: '/pricing'
       fullPath: '/admin/pricing'
       preLoaderRoute: typeof AuthenticatedAdminPricingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/app/': {
@@ -435,6 +539,13 @@ declare module '@tanstack/react-router' {
       path: '/business'
       fullPath: '/app/business'
       preLoaderRoute: typeof AuthenticatedAppBusinessRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/help': {
+      id: '/_authenticated/app/help'
+      path: '/help'
+      fullPath: '/app/help'
+      preLoaderRoute: typeof AuthenticatedAppHelpRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/notifications': {
@@ -456,6 +567,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/app/profile'
       preLoaderRoute: typeof AuthenticatedAppProfileRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/rewards': {
+      id: '/_authenticated/app/rewards'
+      path: '/rewards'
+      fullPath: '/app/rewards'
+      preLoaderRoute: typeof AuthenticatedAppRewardsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/send': {
@@ -532,12 +650,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
+  AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
+  AuthenticatedAdminOperationsRoute: typeof AuthenticatedAdminOperationsRoute
   AuthenticatedAdminPricingRoute: typeof AuthenticatedAdminPricingRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
+  AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
+  AuthenticatedAdminOperationsRoute: AuthenticatedAdminOperationsRoute,
   AuthenticatedAdminPricingRoute: AuthenticatedAdminPricingRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -546,9 +672,11 @@ const AuthenticatedAdminRouteWithChildren =
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppBusinessRoute: typeof AuthenticatedAppBusinessRoute
+  AuthenticatedAppHelpRoute: typeof AuthenticatedAppHelpRoute
   AuthenticatedAppNotificationsRoute: typeof AuthenticatedAppNotificationsRoute
   AuthenticatedAppOrdersRoute: typeof AuthenticatedAppOrdersRoute
   AuthenticatedAppProfileRoute: typeof AuthenticatedAppProfileRoute
+  AuthenticatedAppRewardsRoute: typeof AuthenticatedAppRewardsRoute
   AuthenticatedAppSendRoute: typeof AuthenticatedAppSendRoute
   AuthenticatedAppTrackRoute: typeof AuthenticatedAppTrackRoute
   AuthenticatedAppWalletRoute: typeof AuthenticatedAppWalletRoute
@@ -558,9 +686,11 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppBusinessRoute: AuthenticatedAppBusinessRoute,
+  AuthenticatedAppHelpRoute: AuthenticatedAppHelpRoute,
   AuthenticatedAppNotificationsRoute: AuthenticatedAppNotificationsRoute,
   AuthenticatedAppOrdersRoute: AuthenticatedAppOrdersRoute,
   AuthenticatedAppProfileRoute: AuthenticatedAppProfileRoute,
+  AuthenticatedAppRewardsRoute: AuthenticatedAppRewardsRoute,
   AuthenticatedAppSendRoute: AuthenticatedAppSendRoute,
   AuthenticatedAppTrackRoute: AuthenticatedAppTrackRoute,
   AuthenticatedAppWalletRoute: AuthenticatedAppWalletRoute,
