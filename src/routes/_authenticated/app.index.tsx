@@ -40,11 +40,11 @@ function CustomerHome() {
       </header>
 
       <section className="relative mt-9 overflow-hidden rounded-[2rem] bg-ink p-6 text-ink-foreground shadow-float">
-        <img src={box} alt="" aria-hidden className="pointer-events-none absolute -bottom-4 -right-4 h-32 w-32 object-contain" />
+        <img src={box} alt="" aria-hidden className="pointer-events-none absolute -right-3 -top-3 h-24 w-24 object-contain opacity-90" />
         <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] opacity-50">New delivery</p>
         <h2 className="mt-3 max-w-[13ch] font-display text-3xl font-extrabold leading-[1.08]">Send a package.</h2>
         <p className="mt-3 max-w-[24ch] text-sm font-semibold opacity-70">Pickup, drop-off, done. Anything, anywhere in town.</p>
-        <Button asChild variant="sun" className="mt-7 h-12 w-full max-w-[230px] px-6">
+        <Button asChild variant="sun" className="mt-7 h-12 w-full px-6">
           <Link to="/app/send">Send a Package</Link>
         </Button>
       </section>
