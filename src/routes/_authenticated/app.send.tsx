@@ -111,7 +111,7 @@ async function searchPlaces(q: string, signal: AbortSignal): Promise<Suggestion[
   let remote: Suggestion[] = [];
   try {
     const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lat=-15.4167&lon=28.2833&limit=10&lang=en&bbox=27.6,-15.9,28.9,-15.0`, { signal });
-    const d = (await r.json()) as { features: { geometry: { coordinates: [number, number] }; properties: Record<string, string> }[] };
+    const d = (await r.json()) as { features: { geometry: { coordinates: [number, number] }; properties: { countrycode?: string; name?: string; housenumber?: string; street?: string; city?: string; district?: string; locality?: string } }[] };
     remote = d.features.filter((f) => !f.properties.countrycode || f.properties.countrycode === "ZM").map((f) => {
       const pr = f.properties;
       const name = pr.name || [pr.housenumber, pr.street].filter(Boolean).join(" ") || pr.city || "Unnamed place";
